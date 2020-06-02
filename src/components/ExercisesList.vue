@@ -3,7 +3,7 @@
     <div
       class="exercise"
       :class="{ stripe: i % 2 === 0 }"
-      v-for="(exercise, i) in exercisesWithScores"
+      v-for="(exercise, i) in exercises"
       :key="exercise.id"
     >
       <span>{{ exercise.name }}</span>
@@ -23,33 +23,37 @@ export default {
   },
   async created() {
     const exerciseService = new ExerciseService();
-    const filteredExercises = await exerciseService._getAllIncluding(
+    const exercisesWithScores = await exerciseService._getAllIncluding(
       '?_embed=studentScores'
     );
-    this.exercises = filteredExercises.map((exercise) => {
+
+    this.exercises = exercisesWithScores.map((exercise) => {
+      const filteredStudentScores = exercise.studentScores.filter((entry) => {
+        return entry.score != null;
+      });
+
       return {
         exerciseId: exercise.id,
         name: exercise.name,
-        scores: exercise.studentScores.map((entry) => {
-          if (entry.score != null) {
-            return entry.score;
-          } else {
-            return 0;
-          }
-        }),
+        averageScore:
+          filteredStudentScores.reduce(
+            (total, object) => total + object.score,
+            0
+          ) / filteredStudentScores.length,
       };
     });
   },
+
   computed: {
-    exercisesWithScores() {
-      return this.exercises.map((exercise) => {
-        return {
-          name: exercise.name,
-          averageScore:
-            exercise.scores.reduce((a, b) => a + b, 0) / exercise.scores.length,
-        };
-      });
-    },
+    // exercisesWithScores() {
+    //   return this.exercises.map((exercise) => {
+    //     return {
+    //       name: exercise.name,
+    //       averageScore:
+    //         exercise.scores.reduce((a, b) => a + b, 0) / exercise.scores.length,
+    //     };
+    //   });
+    // },
   },
 };
 </script>
