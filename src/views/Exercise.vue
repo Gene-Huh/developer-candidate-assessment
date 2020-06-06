@@ -2,18 +2,18 @@
   <div>
     <h1>{{ title }}</h1>
     <h3 v-if="totalAverage">Total Average: {{ totalAverage.toFixed(2) }}</h3>
-    <card class="exercises">
-      <exercises-list v-on:loaded="updateAverageTotal" />
+    <card class="students">
+      <exercise-view v-on:loaded="updateAverageTotal" />
     </card>
   </div>
 </template>
 
 <script>
 import Card from '@/components/ui/Card';
-import ExercisesList from '@/components/ExercisesList';
+import ExerciseView from '@/components/ExerciseView';
 
 export default {
-  components: { Card, ExercisesList },
+  components: { Card, ExerciseView },
   data() {
     return {
       title: '',
@@ -30,7 +30,7 @@ export default {
 </script>
 
 <style scoped>
-.exercises {
+.students {
   width: 100%;
 }
 </style>

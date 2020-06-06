@@ -1,14 +1,16 @@
 <template>
   <div>
-    <div
+    <router-link
+      tag="div"
       class="exercise"
       :class="{ stripe: i % 2 === 0 }"
       v-for="(exercise, i) in exercisesWithScores"
-      :key="exercise.id"
+      :key="exercise.exerciseId"
+      :to="{ name: 'Exercise', params: { id: exercise.exerciseId, name: exercise.name } }"
     >
       <span>{{ exercise.name }}</span>
       <span>{{ exercise.averageScore.toFixed(2) }}</span>
-    </div>
+    </router-link>
   </div>
 </template>
 
@@ -20,7 +22,7 @@ import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
-      title: "Exercises",
+      title: 'Exercises',
       exercises: [],
     };
   },
@@ -41,8 +43,14 @@ export default {
             ) / filteredStudentScores.length,
         };
       });
-      const averages = combinedArr.reduce((total, exercise)=> total + exercise.averageScore, 0)
-      this.$emit('loaded', {title: this.title, totalAverage: averages/combinedArr.length});
+      const averages = combinedArr.reduce(
+        (total, exercise) => total + exercise.averageScore,
+        0
+      );
+      this.$emit('loaded', {
+        title: this.title,
+        totalAverage: averages / combinedArr.length,
+      });
       return combinedArr;
     },
   },
@@ -50,21 +58,8 @@ export default {
     const exerciseService = new ExerciseService();
     const exercises = await exerciseService.getAll();
     this.exercises = exercises;
-    store.dispatch('setExercises', exercises);
     store.dispatch('getStudentScores');
   },
-
-  // computed: {
-  // exercisesWithScores() {
-  //   return this.exercises.map((exercise) => {
-  //     return {
-  //       name: exercise.name,
-  //       averageScore:
-  //         exercise.scores.reduce((a, b) => a + b, 0) / exercise.scores.length,
-  //     };
-  //   });
-  // },
-  // },
 };
 </script>
 
