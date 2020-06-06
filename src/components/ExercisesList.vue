@@ -67,6 +67,7 @@ export default {
 .exercise {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid #add8e6;
   width: 100%;
   padding: 15px;

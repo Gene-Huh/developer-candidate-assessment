@@ -4,11 +4,6 @@ export default {
   state: {
     students: [],
   },
-  getters: {
-    students(state) {
-      return state.students;
-    },
-  },
   actions: {
     async getStudents(context) {
       try {
@@ -17,12 +12,20 @@ export default {
         context.commit('setStudents', students);
       } catch (error) {
         console.error(error);
-      }
+      };
     },
   },
   mutations: {
     setStudents(state, students) {
       state.students = students;
     },
+  },
+  getters: {
+    students(state) {
+      return state.students;
+    },
+    isLoaded(state) {
+      return !!state.students.length;
+    }
   },
 };

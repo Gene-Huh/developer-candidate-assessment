@@ -1,14 +1,15 @@
 <template>
-  <div>
+  <div v-if="isLoaded">
     <div
       tag="div"
       class="student"
       :class="{ stripe: i % 2 === 0 }"
-      v-for="(student, i) in students"
+      v-for="(student, i) in studentsWithScore"
       :key="student.id"
     >
+      <img :src="student.avatar" />
       <span>{{ student.name }}</span>
-      <span>{{ student.score }}</span>
+      <span class="score">{{ student.score }}</span>
     </div>
   </div>
 </template>
@@ -19,36 +20,33 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    ...mapGetters(['students']),
-    // exercisesWithScores() {
-    //   const combinedArr = this.exercises.map((exercise) => {
-    //     const filteredStudentScores = this.studentScores.filter((entry) => {
-    //       return entry.score != null && entry.exerciseId == exercise.id;
-    //     });
-    //     return {
-    //       exerciseId: exercise.id,
-    //       name: exercise.name,
-    //       averageScore:
-    //         filteredStudentScores.reduce(
-    //           (total, object) => total + object.score,
-    //           0
-    //         ) / filteredStudentScores.length,
-    //     };
-    //   });
-    //   const averages = combinedArr.reduce(
-    //     (total, exercise) => total + exercise.averageScore,
-    //     0
-    //   );
-    //   this.$emit('loaded', {
-    //     title: this.$route.params.name,
-    //     totalAverage: averages / combinedArr.length,
-    //   });
-    //   return combinedArr;
-    // },
+    ...mapGetters(['students', 'studentScores', 'isLoaded']),
+    studentsWithScore() {
+      const exerciseId = this.$route.params.id;
+      const combinedArr = this.students.map((student) => {
+        const filteredStudentScores = this.studentScores.filter((entry) => {
+          return entry.exerciseId == exerciseId;
+        });
+        return {
+          studentId: student.id,
+          name: student.name,
+          score: (filteredStudentScores.find(score => score.studentId == student.id)).score,
+          avatar: student.avatar
+        };
+      });
+      const exerciseAverage = combinedArr.reduce((total, student)=>
+      total + student.score, 0);
+      this.$emit('loaded', {
+        title: this.$route.params.name,
+        totalAverage: exerciseAverage / combinedArr.length,
+      });
+      return combinedArr;
+    },
   },
   async created() {
-    this.$emit('loaded', {title: this.$route.params.name, totalAverage: 0});
+    this.$emit('loaded', {title: this.$route.params.name, totalAverage: 1});
     store.dispatch('getStudents');
+    store.dispatch('getStudentScores');
   },
 };
 </script>
@@ -57,9 +55,9 @@ export default {
 .student {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid #add8e6;
   width: 100%;
-  padding: 15px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -70,5 +68,14 @@ export default {
 
 .stripe {
   background-color: #f5f5f5;
+}
+img {
+  height: 40px;
+  width: auto;
+  border-radius: 5px;
+}
+.score {
+  display: block;
+  margin-right: 15px;
 }
 </style>

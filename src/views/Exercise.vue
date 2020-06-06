@@ -33,4 +33,7 @@ export default {
 .students {
   width: 100%;
 }
+h1,h3{
+  display: inline-block;
+}
 </style>
