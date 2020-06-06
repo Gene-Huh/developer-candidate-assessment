@@ -3,11 +3,11 @@
     <div
       class="exercise"
       :class="{ stripe: i % 2 === 0 }"
-      v-for="(exercise, i) in exercises"
+      v-for="(exercise, i) in exercisesWithScores"
       :key="exercise.id"
     >
       <span>{{ exercise.name }}</span>
-      <!-- <span>{{exercise.averageScore.toFixed(2)}}</span> -->
+      <span>{{ exercise.averageScore.toFixed(2) }}</span>
     </div>
   </div>
 </template>
@@ -18,41 +18,48 @@ import store from '@/store';
 import { mapGetters } from 'vuex';
 
 export default {
-  computed: {
-    ...mapGetters(['exercises']),
+  data() {
+    return {
+      exercises: [],
+    };
   },
-
+  computed: {
+    ...mapGetters(['studentScores']),
+    exercisesWithScores() {
+      return this.exercises.map((exercise) => {
+        const filteredStudentScores = this.studentScores.filter((entry) => {
+          return entry.score != null && entry.exerciseId == exercise.id;
+        });
+        return {
+          exerciseId: exercise.id,
+          name: exercise.name,
+          averageScore:
+            filteredStudentScores.reduce(
+              (total, object) => total + object.score,
+              0
+            ) / filteredStudentScores.length,
+        };
+      });
+    },
+  },
   async created() {
     const exerciseService = new ExerciseService();
     const exercises = await exerciseService.getAll();
-    store.commit('setExercises', exercises);
-    // this.exercises = exercisesWithScores.map((exercise) => {
-    //   const filteredStudentScores = exercise.studentScores.filter((entry) => {
-    //     return entry.score != null;
-    //   });
-
-    //   return {
-    //     exerciseId: exercise.id,
-    //     name: exercise.name,
-    //     averageScore:
-    //       filteredStudentScores.reduce(
-    //         (total, object) => total + object.score,
-    //         0
-    //       ) / filteredStudentScores.length,
-    //   };
-    // });
+    this.exercises = exercises;
+    store.dispatch('setExercises', exercises);
+    store.dispatch('getStudentScores');
   },
 
   // computed: {
-  //   // exercisesWithScores() {
-  //   //   return this.exercises.map((exercise) => {
-  //   //     return {
-  //   //       name: exercise.name,
-  //   //       averageScore:
-  //   //         exercise.scores.reduce((a, b) => a + b, 0) / exercise.scores.length,
-  //   //     };
-  //   //   });
-  //   // },
+  // exercisesWithScores() {
+  //   return this.exercises.map((exercise) => {
+  //     return {
+  //       name: exercise.name,
+  //       averageScore:
+  //         exercise.scores.reduce((a, b) => a + b, 0) / exercise.scores.length,
+  //     };
+  //   });
+  // },
   // },
 };
 </script>
