@@ -7,54 +7,53 @@
       :key="exercise.id"
     >
       <span>{{ exercise.name }}</span>
-      <span>{{exercise.averageScore.toFixed(2)}}</span>
+      <!-- <span>{{exercise.averageScore.toFixed(2)}}</span> -->
     </div>
   </div>
 </template>
 
 <script>
 import ExerciseService from '@/services/ExerciseService';
+import store from '@/store';
+import { mapGetters } from 'vuex';
 
 export default {
-  data() {
-    return {
-      exercises: [],
-    };
+  computed: {
+    ...mapGetters(['exercises']),
   },
+
   async created() {
     const exerciseService = new ExerciseService();
-    const exercisesWithScores = await exerciseService._getAllIncluding(
-      '?_embed=studentScores'
-    );
-
-    this.exercises = exercisesWithScores.map((exercise) => {
-      const filteredStudentScores = exercise.studentScores.filter((entry) => {
-        return entry.score != null;
-      });
-
-      return {
-        exerciseId: exercise.id,
-        name: exercise.name,
-        averageScore:
-          filteredStudentScores.reduce(
-            (total, object) => total + object.score,
-            0
-          ) / filteredStudentScores.length,
-      };
-    });
-  },
-
-  computed: {
-    // exercisesWithScores() {
-    //   return this.exercises.map((exercise) => {
-    //     return {
-    //       name: exercise.name,
-    //       averageScore:
-    //         exercise.scores.reduce((a, b) => a + b, 0) / exercise.scores.length,
-    //     };
+    const exercises = await exerciseService.getAll();
+    store.commit('setExercises', exercises);
+    // this.exercises = exercisesWithScores.map((exercise) => {
+    //   const filteredStudentScores = exercise.studentScores.filter((entry) => {
+    //     return entry.score != null;
     //   });
-    // },
+
+    //   return {
+    //     exerciseId: exercise.id,
+    //     name: exercise.name,
+    //     averageScore:
+    //       filteredStudentScores.reduce(
+    //         (total, object) => total + object.score,
+    //         0
+    //       ) / filteredStudentScores.length,
+    //   };
+    // });
   },
+
+  // computed: {
+  //   // exercisesWithScores() {
+  //   //   return this.exercises.map((exercise) => {
+  //   //     return {
+  //   //       name: exercise.name,
+  //   //       averageScore:
+  //   //         exercise.scores.reduce((a, b) => a + b, 0) / exercise.scores.length,
+  //   //     };
+  //   //   });
+  //   // },
+  // },
 };
 </script>
 
