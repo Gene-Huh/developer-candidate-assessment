@@ -1,8 +1,9 @@
 <template>
   <div>
-    <h1>Exercises</h1>
+    <h1>{{title}}</h1>
+    <h3 v-if="totalAverage">Total Average: {{ totalAverage.toFixed(2) }}</h3>
     <card class="exercises">
-      <exercises-list />
+      <exercises-list v-on:loaded="updateAverageTotal" />
     </card>
   </div>
 </template>
@@ -13,6 +14,18 @@ import ExercisesList from '@/components/ExercisesList';
 
 export default {
   components: { Card, ExercisesList },
+  data() {
+    return {
+      title: '',
+      totalAverage: null,
+    };
+  },
+  methods: {
+    updateAverageTotal(payload) {
+      this.totalAverage = payload.totalAverage;
+      this.title = payload.title;
+    },
+  },
 };
 </script>
 

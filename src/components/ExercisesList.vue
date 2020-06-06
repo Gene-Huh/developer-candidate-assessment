@@ -20,13 +20,14 @@ import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
+      title: "Exercises",
       exercises: [],
     };
   },
   computed: {
     ...mapGetters(['studentScores']),
     exercisesWithScores() {
-      return this.exercises.map((exercise) => {
+      const combinedArr = this.exercises.map((exercise) => {
         const filteredStudentScores = this.studentScores.filter((entry) => {
           return entry.score != null && entry.exerciseId == exercise.id;
         });
@@ -40,6 +41,9 @@ export default {
             ) / filteredStudentScores.length,
         };
       });
+      const averages = combinedArr.reduce((total, exercise)=> total + exercise.averageScore, 0)
+      this.$emit('loaded', {title: this.title, totalAverage: averages/combinedArr.length});
+      return combinedArr;
     },
   },
   async created() {
