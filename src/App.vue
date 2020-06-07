@@ -7,10 +7,17 @@
 
 <script>
 import TheHeader from '@/components/layout/TheHeader';
+import store from '@/store';
 
 export default {
   components: {
     TheHeader,
+  },
+  async created() {
+    // Calls all fetches to populate the store once app is loaded.
+    store.dispatch('getExercises');
+    store.dispatch('getStudents');
+    store.dispatch('getStudentScores');
   },
 };
 </script>

@@ -16,7 +16,6 @@
 
 <script>
 import ExerciseService from '@/services/ExerciseService';
-import store from '@/store';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -58,7 +57,6 @@ export default {
     const exerciseService = new ExerciseService();
     const exercises = await exerciseService.getAll();
     this.exercises = exercises;
-    store.dispatch('getStudentScores');
   },
 };
 </script>

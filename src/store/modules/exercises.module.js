@@ -6,7 +6,7 @@ export default {
   state: {
     exercises: [],
     studentScores: [],
-    students: []
+    students: [],
   },
 
   getters: {
@@ -21,28 +21,31 @@ export default {
     },
   },
   actions: {
-    async getStudentScores(context) {
+    async getStudentScores({ commit }) {
       try {
         const restService = new RestService('student-scores');
         const scores = await restService.getAll();
-        context.commit('setStudentScores', scores);
+        commit('setStudentScores', scores);
       } catch (error) {
         console.error(error);
       }
     },
-    async getExercises(context) {
+    async getExercises({ commit }) {
       const exerciseService = new ExerciseService();
       const exercises = await exerciseService.getAll();
-      context.commit('setExercises', exercises);
+      commit('setExercises', exercises);
     },
-    async getStudents(context) {
+    async getStudents({ commit }) {
       try {
         const studentService = new StudentService();
         const students = await studentService.getAll();
-        context.commit('setStudents', students);
+        commit('setStudents', students);
       } catch (error) {
         console.error(error);
-      };
+      }
+    },
+    updateStudentScores({ commit }, payload) {
+      commit('mutateStudentScores', payload);
     },
   },
   mutations: {
@@ -55,5 +58,8 @@ export default {
     setStudents(state, students) {
       state.students = students;
     },
-  }
+    mutateStudentScores(state, payload) {
+      state.studentScores[payload.FI] = payload.USI;
+    },
+  },
 };

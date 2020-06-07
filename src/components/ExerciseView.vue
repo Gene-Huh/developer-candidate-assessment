@@ -5,18 +5,23 @@
       class="student"
       :class="{ stripe: i % 2 === 0 }"
       v-for="(student, i) in studentsWithScore"
-      :key="student.id"
+      :key="student.studentId"
     >
       <img :src="student.avatar" />
       <span>{{ student.name }}</span>
-      <span class="score">{{ student.score }}</span>
+      <span
+        class="score"
+        contenteditable="contenteditable"
+        @blur="editScore(student.studentId, $event.target.innerText)"
+        @keydown.enter="endEdit"
+        >{{ student.score }}</span
+      >
     </div>
   </div>
 </template>
 
 <script>
-import store from '@/store';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   data() {
@@ -29,6 +34,8 @@ export default {
   computed: {
     ...mapGetters(['students', 'studentScores', 'exercises']),
     studentsWithScore() {
+      // A SQL JOIN method for data between 2 different entities for page render.
+      // Allows to set local page info: Name and Average
       const exerciseId = this.$route.params.id;
       const filteredStudentScores = this.studentScores.filter((entry) => {
         return entry.score != null && entry.exerciseId == exerciseId;
@@ -50,6 +57,8 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['updateStudentScores']),
+    // Adds entry for null scores before rendering
     parseExerciseScoreForNull(array, student) {
       if (array.find((score) => score.studentId == student.id)) {
         return array.find((score) => score.studentId == student.id).score;
@@ -57,24 +66,42 @@ export default {
         return 'N/A';
       }
     },
+    // Helper sets the Total Average on computed before rendering full list with nulls.
     setTotalAverage(avg, count) {
       this.avg = avg / count;
     },
+    editScore(studentID, newScore) {
+      const updatedScoreItem = {
+        exerciseId: Number(this.$route.params.id),
+        studentId: studentID,
+        score: Number(newScore),
+      };
+      const foundIndex = this.studentScores.findIndex(
+        (scoreEntry) =>
+          updatedScoreItem.studentId == scoreEntry.studentId &&
+          updatedScoreItem.exerciseId == scoreEntry.exerciseId
+      );
+      this.updateStudentScores({ FI: foundIndex, USI: updatedScoreItem });
+    },
+    endEdit(event) {
+      event.target.blur();
+    },
+    setTitleAndAverage() {
+      this.name = this.exercises.find(
+        (ex) => ex.id == this.$route.params.id
+      ).name;
+      this.$emit('loaded', {
+        title: this.name,
+        totalAverage: this.avg,
+      });
+    },
   },
   updated() {
-    this.name = this.exercises.find(
-      (ex) => ex.id == this.$route.params.id
-    ).name;
-    this.$emit('loaded', {
-      title: this.name,
-      totalAverage: this.avg,
-    });
+    this.setTitleAndAverage();
   },
-  async created() {
-    store.dispatch('getExercises');
-    store.dispatch('getStudents');
-    store.dispatch('getStudentScores');
-  },
+  mounted() {
+    this.setTitleAndAverage();
+  }
 };
 </script>
 
