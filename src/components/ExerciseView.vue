@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoaded">
+  <div>
     <div
       tag="div"
       class="student"
@@ -20,7 +20,7 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    ...mapGetters(['students', 'studentScores', 'isLoaded']),
+    ...mapGetters(['students', 'studentScores']),
     studentsWithScore() {
       const exerciseId = this.$route.params.id;
       const combinedArr = this.students.map((student) => {
