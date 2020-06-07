@@ -20,6 +20,7 @@ const routes = [
     path: '/exercise/:id',
     name: 'Exercise',
     component: Exercise,
+    props: true,
   },
 ];
 

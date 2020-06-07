@@ -19,32 +19,59 @@ import store from '@/store';
 import { mapGetters } from 'vuex';
 
 export default {
+  data() {
+    return {
+      name: 'Current Exercise',
+      avg: 0,
+    };
+  },
+  props: {},
   computed: {
-    ...mapGetters(['students', 'studentScores']),
+    ...mapGetters(['students', 'studentScores', 'exercises']),
     studentsWithScore() {
       const exerciseId = this.$route.params.id;
+      const filteredStudentScores = this.studentScores.filter((entry) => {
+        return entry.score != null && entry.exerciseId == exerciseId;
+      });
+      const exerciseAverage = filteredStudentScores.reduce(
+        (total, student) => total + student.score,
+        0
+      );
       const combinedArr = this.students.map((student) => {
-        const filteredStudentScores = this.studentScores.filter((entry) => {
-          return entry.exerciseId == exerciseId;
-        });
         return {
           studentId: student.id,
           name: student.name,
-          score: (filteredStudentScores.find(score => score.studentId == student.id)).score,
-          avatar: student.avatar
+          score: this.parseExerciseScoreForNull(filteredStudentScores, student),
+          avatar: student.avatar,
         };
       });
-      const exerciseAverage = combinedArr.reduce((total, student)=>
-      total + student.score, 0);
-      this.$emit('loaded', {
-        title: this.$route.params.name,
-        totalAverage: exerciseAverage / combinedArr.length,
-      });
+      this.setTotalAverage(exerciseAverage, filteredStudentScores.length);
       return combinedArr;
     },
   },
+  methods: {
+    parseExerciseScoreForNull(array, student) {
+      if (array.find((score) => score.studentId == student.id)) {
+        return array.find((score) => score.studentId == student.id).score;
+      } else {
+        return 'N/A';
+      }
+    },
+    setTotalAverage(avg, count) {
+      this.avg = avg / count;
+    },
+  },
+  updated() {
+    this.name = this.exercises.find(
+      (ex) => ex.id == this.$route.params.id
+    ).name;
+    this.$emit('loaded', {
+      title: this.name,
+      totalAverage: this.avg,
+    });
+  },
   async created() {
-    this.$emit('loaded', {title: this.$route.params.name, totalAverage: 1});
+    store.dispatch('getExercises');
     store.dispatch('getStudents');
     store.dispatch('getStudentScores');
   },
