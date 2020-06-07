@@ -59,7 +59,7 @@ export default {
       state.students = students;
     },
     mutateStudentScores(state, payload) {
-      state.studentScores[payload.FI] = payload.USI;
+      state.studentScores.splice(payload.FI, 1, payload.USI);
     },
   },
 };
