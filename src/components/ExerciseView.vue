@@ -70,6 +70,7 @@ export default {
     setTotalAverage(avg, count) {
       this.avg = avg / count;
     },
+    // sends object to store to update StudentScores because it is a double PK entity.
     editScore(studentID, newScore) {
       const updatedScoreItem = {
         exerciseId: Number(this.$route.params.id),

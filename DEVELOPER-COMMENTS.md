@@ -44,4 +44,4 @@ If I have the time to learn how to write tests, I will learn how to write them a
 
 John Fulton's first rule of programming: Does it pass as MVP?
 
-I think it would be better to clean up the code before creating tests due to time constraints.
+Code works with user navigation aberrations in mind. Does not include input validation for scores, although that would be a good next step.
