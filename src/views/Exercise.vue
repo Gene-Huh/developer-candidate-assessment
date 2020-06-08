@@ -1,7 +1,9 @@
 <template>
   <div>
-    <h1>{{ title }}</h1>
-    <h3 v-if="totalAverage">Total Average: {{ totalAverage.toFixed(2) }}</h3>
+    <div class="title-block">
+      <h1>{{ title }}</h1>
+      <h3 v-if="totalAverage">Avg Score: {{ totalAverage.toFixed(2) }}</h3>
+    </div>
     <card class="students">
       <exercise-view v-on:loaded="updateAverageTotal" />
     </card>
@@ -33,7 +35,14 @@ export default {
 .students {
   width: 100%;
 }
-h1,h3{
-  display: inline-block;
+.title-block {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+h1,
+h2 {
+  display: block;
 }
 </style>
